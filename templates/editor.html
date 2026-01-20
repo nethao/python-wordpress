@@ -368,6 +368,8 @@ function saveArticle() {
         data.article_id = articleId;
     }
 
+    console.log('发送保存请求:', data);
+
     fetch('/api/save_article', {
         method: 'POST',
         headers: {
@@ -375,8 +377,15 @@ function saveArticle() {
         },
         body: JSON.stringify(data)
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('响应状态:', response.status);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(data => {
+        console.log('保存响应:', data);
         if (data.success) {
             let message = '文章保存成功！';
             if (data.audit_info) {
@@ -409,7 +418,8 @@ function saveArticle() {
         }
     })
     .catch(error => {
-        alert('保存失败: ' + error);
+        console.error('保存错误:', error);
+        alert('保存失败: ' + error.message);
     })
     .finally(() => {
         // 恢复按钮状态
