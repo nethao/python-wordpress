@@ -24,7 +24,15 @@ login_manager.init_app(app)
 login_manager.login_view = 'login'
 
 # 初始化DeepSeek审核服务
-audit_service = init_audit_service(DEEPSEEK_CONFIG.get('api_key'))
+try:
+    audit_service = init_audit_service(DEEPSEEK_CONFIG.get('api_key'))
+    if not DEEPSEEK_CONFIG.get('api_key'):
+        print("⚠️  未配置DeepSeek API密钥，将使用基础审核模式")
+        print("   如需使用AI审核，请设置环境变量 DEEPSEEK_API_KEY")
+except Exception as e:
+    print(f"⚠️  DeepSeek审核服务初始化失败: {e}")
+    print("   将使用基础审核模式")
+    audit_service = init_audit_service('')
 
 # 简单的用户数据存储（用于初始化）
 def init_default_user():

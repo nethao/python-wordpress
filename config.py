@@ -1,3 +1,5 @@
+import os
+
 # WordPress配置
 WORDPRESS_CONFIG = {
     'url': 'https://your-wordpress-site.com',  # 替换为你的WordPress网站URL
@@ -8,11 +10,11 @@ WORDPRESS_CONFIG = {
 
 # DeepSeek内容审核配置
 DEEPSEEK_CONFIG = {
-    'api_key': 'your-deepseek-api-key',        # 替换为你的DeepSeek API密钥
-    'default_strict_level': 2,                 # 默认审核严格级别 1:宽松 2:中等 3:严格
-    'cache_expire': 3600,                      # 缓存过期时间（秒）
-    'enable_prefilter': True,                  # 是否启用快速预过滤
-    'fallback_mode': True                      # API不可用时是否启用降级审核
+    'api_key': os.getenv('DEEPSEEK_API_KEY', ''),  # 从环境变量获取，如果没有则为空
+    'default_strict_level': 2,                     # 默认审核严格级别 1:宽松 2:中等 3:严格
+    'cache_expire': 3600,                          # 缓存过期时间（秒）
+    'enable_prefilter': True,                      # 是否启用快速预过滤
+    'fallback_mode': True                          # API不可用时是否启用降级审核
 }
 
 # Flask配置

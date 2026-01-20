@@ -1,0 +1,15 @@
+{
+  "enabled": true,
+  "name": "Auto Commit & Push",
+  "description": "Automatically generates a concise commit message based on modified files and pushes changes to the current GitHub branch when agent execution completes",
+  "version": "1",
+  "when": {
+    "type": "agentStop"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Review all modified files in the git working directory, generate a concise and descriptive commit message based on the changes, then commit and push to the current branch on GitHub. Use git status to see what files have been modified, then git add, git commit with your generated message, and git push."
+  },
+  "workspaceFolderName": "python-wordpress",
+  "shortName": "auto-commit-push"
+}

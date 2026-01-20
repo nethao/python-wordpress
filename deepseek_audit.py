@@ -3,17 +3,26 @@ import json
 import hashlib
 import asyncio
 from typing import List, Dict, Optional
-from openai import OpenAI
 import requests
 import time
 
 class DeepSeekAudit:
     def __init__(self, api_key: str = None):
         self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY", "")
-        self.client = OpenAI(
-            api_key=self.api_key,
-            base_url="https://api.deepseek.com"
-        ) if self.api_key else None
+        self.client = None
+        
+        # 只有在有API密钥时才初始化客户端
+        if self.api_key and self.api_key != "your-deepseek-api-key":
+            try:
+                from openai import OpenAI
+                self.client = OpenAI(
+                    api_key=self.api_key,
+                    base_url="https://api.deepseek.com"
+                )
+            except Exception as e:
+                print(f"DeepSeek客户端初始化失败: {e}")
+                self.client = None
+        
         self.cache = {}
         self.cache_expire = 3600  # 1小时缓存
         
@@ -108,7 +117,8 @@ class DeepSeekAudit:
         
         # DeepSeek API审核
         if not self.client:
-            # 如果没有API密钥，使用基础规则审核
+            # 如果没有API密钥或客户端初始化失败，使用基础规则审核
+            print("DeepSeek API不可用，使用基础审核模式")
             return self._basic_audit(content, strict_level)
         
         try:
