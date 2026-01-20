@@ -8,7 +8,7 @@ from datetime import datetime
 from wordpress_xmlrpc import Client, WordPressPost
 from wordpress_xmlrpc.methods.posts import NewPost
 from deepseek_audit import init_audit_service, get_audit_service
-from config import Config, DEEPSEEK_CONFIG
+from config import Config, DEEPSEEK_CONFIG, SERVER_CONFIG
 from models import db, User, Article, Tag, AuditLog, PublishLog
 
 app = Flask(__name__)
@@ -547,6 +547,14 @@ if __name__ == '__main__':
         else:
             print("✅ 数据库文件已存在")
     
-    print("🚀 应用启动在 http://127.0.0.1:5000")
+    print("🚀 应用启动:")
+    print(f"   本地访问: http://127.0.0.1:{SERVER_CONFIG['port']}")
+    print(f"   外网访问: http://{SERVER_CONFIG['host']}:{SERVER_CONFIG['port']}")
     print("👤 默认登录: admin / admin123")
-    app.run(debug=True)
+    if SERVER_CONFIG['host'] == '0.0.0.0':
+        print("⚠️  注意: 外网访问已开启，请确保网络安全")
+    app.run(
+        host=SERVER_CONFIG['host'], 
+        port=SERVER_CONFIG['port'], 
+        debug=SERVER_CONFIG['debug']
+    )

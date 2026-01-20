@@ -17,6 +17,13 @@ DEEPSEEK_CONFIG = {
     'fallback_mode': True                          # API不可用时是否启用降级审核
 }
 
+# 服务器配置
+SERVER_CONFIG = {
+    'host': os.getenv('FLASK_HOST', '0.0.0.0'),   # 监听地址，0.0.0.0允许外网访问
+    'port': int(os.getenv('FLASK_PORT', 5000)),   # 监听端口
+    'debug': os.getenv('FLASK_DEBUG', 'True').lower() == 'true'  # 调试模式
+}
+
 # Flask配置
 class Config:
     SECRET_KEY = 'your-secret-key-change-this-in-production'

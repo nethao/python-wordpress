@@ -72,7 +72,42 @@ WORDPRESS_CONFIG = {
 python app.py
 ```
 
-访问 `http://localhost:5000` 开始使用。
+默认情况下，应用将在所有网络接口上监听，允许外网访问：
+- 本地访问: `http://localhost:5000`
+- 外网访问: `http://your-server-ip:5000`
+
+### 6. 配置网络访问
+
+**仅本地访问（更安全）:**
+```bash
+export FLASK_HOST=127.0.0.1
+python app.py
+```
+
+**外网访问（默认）:**
+```bash
+export FLASK_HOST=0.0.0.0
+python app.py
+```
+
+**自定义端口:**
+```bash
+export FLASK_PORT=8080
+python app.py
+```
+
+### 7. 安全配置
+
+如果启用外网访问，建议运行安全配置脚本：
+```bash
+python setup_security.py
+```
+
+该脚本将帮助你：
+- 检查防火墙状态
+- 配置防火墙规则
+- 获取网络信息
+- 提供安全建议
 
 ## 默认登录信息
 
@@ -250,6 +285,12 @@ DEEPSEEK_CONFIG = {
 5. 确保WordPress站点启用了XML-RPC功能
 6. 审核结果会缓存，重复内容不会重复调用API
 7. 建议定期使用 `migrate_db.py backup` 备份数据
+8. **外网访问安全**: 如果启用外网访问，请：
+   - 修改默认管理员密码
+   - 配置防火墙规则
+   - 考虑使用HTTPS
+   - 限制访问IP范围
+   - 定期监控访问日志
 
 ## 快捷键
 
