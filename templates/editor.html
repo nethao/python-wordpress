@@ -15,6 +15,9 @@
         <button class="btn btn-success" onclick="saveArticle()">
             <i class="fas fa-save"></i> 保存文章
         </button>
+        <button class="btn btn-info" onclick="testFunction()">
+            <i class="fas fa-bug"></i> 测试
+        </button>
         <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
             <i class="fas fa-arrow-left"></i> 返回
         </a>
@@ -336,96 +339,153 @@ function checkSensitive() {
     });
 }
 
+// 测试函数
+function testFunction() {
+    console.log('测试函数被调用');
+    alert('测试函数正常工作！');
+    
+    // 测试基本元素
+    const title = document.getElementById('articleTitle');
+    const content = document.getElementById('markdownEditor');
+    
+    console.log('标题元素:', title);
+    console.log('内容元素:', content);
+    console.log('标题值:', title ? title.value : '未找到');
+    console.log('内容值:', content ? content.value : '未找到');
+    
+    // 测试变量
+    console.log('articleId:', typeof articleId !== 'undefined' ? articleId : '未定义');
+    console.log('articleTags:', typeof articleTags !== 'undefined' ? articleTags : '未定义');
+    
+    // 测试网络连接
+    fetch('/api/article_stats')
+        .then(response => {
+            console.log('网络测试响应:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('网络测试数据:', data);
+            alert('网络连接正常');
+        })
+        .catch(error => {
+            console.error('网络测试失败:', error);
+            alert('网络连接失败: ' + error.message);
+        });
+}
+
 // 保存文章
 function saveArticle() {
-    const title = document.getElementById('articleTitle').value.trim();
-    const content = document.getElementById('markdownEditor').value.trim();
+    console.log('saveArticle函数被调用');
     
-    if (!title) {
-        alert('请输入文章标题');
-        return;
-    }
-    
-    if (!content) {
-        alert('请输入文章内容');
-        return;
-    }
-
-    // 显示保存状态
-    const saveBtn = document.querySelector('button[onclick="saveArticle()"]');
-    const originalText = saveBtn.innerHTML;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
-    saveBtn.disabled = true;
-
-    const data = {
-        title: title,
-        content: content,
-        tags: articleTags,
-        strict_level: 2  // 可以根据需要调整
-    };
-    
-    if (articleId) {
-        data.article_id = articleId;
-    }
-
-    console.log('发送保存请求:', data);
-
-    fetch('/api/save_article', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        console.log('响应状态:', response.status);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    try {
+        const title = document.getElementById('articleTitle').value.trim();
+        const content = document.getElementById('markdownEditor').value.trim();
+        
+        console.log('获取到的数据:', { title, content });
+        
+        if (!title) {
+            alert('请输入文章标题');
+            return;
         }
-        return response.json();
-    })
-    .then(data => {
-        console.log('保存响应:', data);
-        if (data.success) {
-            let message = '文章保存成功！';
-            if (data.audit_info) {
-                message += `\n风险评分: ${(data.audit_info.score * 100).toFixed(1)}%`;
-                message += `\n风险等级: ${data.audit_info.risk_level}`;
-            }
-            alert(message);
+        
+        if (!content) {
+            alert('请输入文章内容');
+            return;
+        }
+
+        // 显示保存状态
+        const saveBtn = document.querySelector('button[onclick="saveArticle()"]');
+        if (!saveBtn) {
+            console.error('找不到保存按钮');
+            alert('页面错误：找不到保存按钮');
+            return;
+        }
+        
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+        saveBtn.disabled = true;
+
+        const data = {
+            title: title,
+            content: content,
+            tags: typeof articleTags !== 'undefined' ? articleTags : [],
+            strict_level: 2
+        };
+        
+        if (typeof articleId !== 'undefined' && articleId) {
+            data.article_id = articleId;
+        }
+
+        console.log('准备发送的数据:', data);
+
+        fetch('/api/save_article', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            console.log('收到响应:', response);
+            console.log('响应状态:', response.status);
+            console.log('响应头:', response.headers);
             
-            if (!articleId) {
-                // 新文章保存后跳转到编辑页面
-                window.location.href = `/editor/${data.article_id}`;
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-        } else {
-            let errorMessage = '保存失败:\n';
-            if (data.reasons && data.reasons.length > 0) {
-                errorMessage += data.reasons.join('\n');
+            return response.json();
+        })
+        .then(data => {
+            console.log('解析后的响应数据:', data);
+            
+            if (data.success) {
+                let message = '文章保存成功！';
+                if (data.audit_info) {
+                    message += `\n风险评分: ${(data.audit_info.score * 100).toFixed(1)}%`;
+                    message += `\n风险等级: ${data.audit_info.risk_level}`;
+                }
+                alert(message);
+                
+                if (!articleId && data.article_id) {
+                    console.log('跳转到编辑页面:', `/editor/${data.article_id}`);
+                    window.location.href = `/editor/${data.article_id}`;
+                }
             } else {
-                errorMessage += data.message;
+                let errorMessage = '保存失败:\n';
+                if (data.reasons && data.reasons.length > 0) {
+                    errorMessage += data.reasons.join('\n');
+                } else {
+                    errorMessage += data.message || '未知错误';
+                }
+                
+                if (data.sensitive_words && data.sensitive_words.length > 0) {
+                    errorMessage += '\n\n违规关键词: ' + data.sensitive_words.join(', ');
+                }
+                
+                if (data.suggestions && data.suggestions.length > 0) {
+                    errorMessage += '\n\n修改建议:\n' + data.suggestions.join('\n');
+                }
+                
+                alert(errorMessage);
             }
-            
-            if (data.sensitive_words && data.sensitive_words.length > 0) {
-                errorMessage += '\n\n违规关键词: ' + data.sensitive_words.join(', ');
+        })
+        .catch(error => {
+            console.error('保存过程中发生错误:', error);
+            alert('保存失败: ' + error.message);
+        })
+        .finally(() => {
+            // 恢复按钮状态
+            console.log('恢复按钮状态');
+            if (saveBtn) {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
             }
-            
-            if (data.suggestions && data.suggestions.length > 0) {
-                errorMessage += '\n\n修改建议:\n' + data.suggestions.join('\n');
-            }
-            
-            alert(errorMessage);
-        }
-    })
-    .catch(error => {
-        console.error('保存错误:', error);
-        alert('保存失败: ' + error.message);
-    })
-    .finally(() => {
-        // 恢复按钮状态
-        saveBtn.innerHTML = originalText;
-        saveBtn.disabled = false;
-    });
+        });
+        
+    } catch (error) {
+        console.error('saveArticle函数执行错误:', error);
+        alert('保存功能出错: ' + error.message);
+    }
 }
 
 // 快捷键支持

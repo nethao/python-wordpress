@@ -196,9 +196,13 @@ def check_sensitive():
 @login_required
 def save_article():
     """保存文章API - 集成数据库和DeepSeek审核"""
+    print("=== 保存文章API被调用 ===")
     try:
         data = request.get_json()
+        print(f"接收到的数据: {data}")
+        
         if not data:
+            print("错误: 请求数据为空")
             return jsonify({
                 'success': False,
                 'message': '请求数据为空'
@@ -210,7 +214,10 @@ def save_article():
         tags_data = data.get('tags', [])
         strict_level = data.get('strict_level', DEEPSEEK_CONFIG.get('default_strict_level', 2))
         
+        print(f"解析后的数据: title='{title}', content长度={len(content)}, article_id={article_id}")
+        
         if not title or not content:
+            print("错误: 标题或内容为空")
             return jsonify({
                 'success': False,
                 'message': '标题和内容不能为空'
@@ -218,8 +225,10 @@ def save_article():
         
         # 使用DeepSeek审核标题和内容
         full_content = f"{title} {content}"
+        print("开始审核内容...")
         try:
             audit_result = audit_service.audit_content(full_content, strict_level)
+            print(f"审核结果: {audit_result}")
         except Exception as e:
             print(f"审核服务错误: {e}")
             # 如果审核失败，使用默认通过结果
@@ -232,11 +241,14 @@ def save_article():
                 'flagged_keywords': []
             }
         
+        print("开始数据库操作...")
         try:
             if article_id:
+                print(f"更新现有文章: {article_id}")
                 # 更新现有文章
                 article = Article.query.filter_by(id=article_id, user_id=current_user.id).first()
                 if not article:
+                    print("错误: 文章不存在或无权限")
                     return jsonify({
                         'success': False,
                         'message': '文章不存在或无权限访问'
@@ -246,6 +258,7 @@ def save_article():
                 article.content = content
                 article.updated_at = datetime.utcnow()
             else:
+                print("创建新文章")
                 # 创建新文章
                 article = Article(
                     title=title,
@@ -256,6 +269,7 @@ def save_article():
                 db.session.add(article)
                 # 先提交以获取ID
                 db.session.flush()
+                print(f"新文章ID: {article.id}")
             
             # 更新审核信息
             article.audit_score = audit_result['score']
@@ -267,8 +281,10 @@ def save_article():
             # 更新字数和摘要
             article.update_word_count()
             article.generate_summary()
+            print(f"文章字数: {article.word_count}")
             
             # 处理标签
+            print(f"处理标签: {tags_data}")
             article.tags.clear()
             for tag_name in tags_data:
                 tag_name = tag_name.strip()
@@ -294,9 +310,12 @@ def save_article():
             )
             db.session.add(audit_log)
             
+            print("提交数据库事务...")
             db.session.commit()
+            print("数据库操作成功")
             
             if not audit_result['passed']:
+                print("审核未通过，返回失败结果")
                 return jsonify({
                     'success': False,
                     'message': '文章审核未通过，已保存为草稿',
@@ -308,6 +327,7 @@ def save_article():
                     'article_id': article.id
                 })
             
+            print("返回成功结果")
             return jsonify({
                 'success': True,
                 'message': '文章保存成功',
@@ -319,8 +339,8 @@ def save_article():
             })
             
         except Exception as e:
-            db.session.rollback()
             print(f"数据库操作错误: {e}")
+            db.session.rollback()
             return jsonify({
                 'success': False,
                 'message': f'保存失败: {str(e)}'
@@ -328,6 +348,8 @@ def save_article():
             
     except Exception as e:
         print(f"保存文章API错误: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'success': False,
             'message': f'服务器错误: {str(e)}'
