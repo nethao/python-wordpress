@@ -439,15 +439,43 @@ def publish_article():
 @login_required
 def delete_article(article_id):
     """删除文章"""
+    print(f"=== 删除文章API被调用: article_id={article_id} ===")
+    
     article = Article.query.filter_by(id=article_id, user_id=current_user.id).first()
     if not article:
+        print("错误: 文章不存在或无权限访问")
         return jsonify({'success': False, 'message': '文章不存在或无权限访问'})
     
     try:
+        print(f"开始删除文章: {article.title}")
+        
+        # 手动删除相关的审核日志
+        audit_logs = AuditLog.query.filter_by(article_id=article_id).all()
+        for log in audit_logs:
+            db.session.delete(log)
+        print(f"删除了 {len(audit_logs)} 条审核日志")
+        
+        # 手动删除相关的发布日志
+        publish_logs = PublishLog.query.filter_by(article_id=article_id).all()
+        for log in publish_logs:
+            db.session.delete(log)
+        print(f"删除了 {len(publish_logs)} 条发布日志")
+        
+        # 清除标签关联
+        article.tags = []
+        print("清除了标签关联")
+        
+        # 删除文章
         db.session.delete(article)
         db.session.commit()
+        
+        print("文章删除成功")
         return jsonify({'success': True, 'message': '文章删除成功'})
+        
     except Exception as e:
+        print(f"删除失败: {e}")
+        import traceback
+        traceback.print_exc()
         db.session.rollback()
         return jsonify({'success': False, 'message': f'删除失败: {str(e)}'})
 

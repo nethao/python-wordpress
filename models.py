@@ -135,7 +135,7 @@ class AuditLog(db.Model):
     __tablename__ = 'audit_logs'
     
     id = db.Column(db.Integer, primary_key=True)
-    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'), nullable=False)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id', ondelete='CASCADE'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # 审核结果
@@ -163,7 +163,7 @@ class PublishLog(db.Model):
     __tablename__ = 'publish_logs'
     
     id = db.Column(db.Integer, primary_key=True)
-    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'), nullable=False)
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id', ondelete='CASCADE'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # 发布信息
