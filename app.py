@@ -7,6 +7,8 @@ import os
 from datetime import datetime
 from wordpress_xmlrpc import Client, WordPressPost
 from wordpress_xmlrpc.methods.posts import NewPost
+from wordpress_xmlrpc.methods.taxonomies import GetTerms
+from wordpress_xmlrpc.compat import xmlrpc_client
 from deepseek_audit import init_audit_service, get_audit_service
 from config import Config, DEEPSEEK_CONFIG, SERVER_CONFIG
 from models import db, User, Article, Tag, AuditLog, PublishLog
@@ -55,6 +57,7 @@ class WordPressPublisher:
         self.username = username
         self.password = password
         self.client = None
+        self._categories_cache = {}
         
     def connect(self):
         """连接到WordPress"""
@@ -64,6 +67,39 @@ class WordPressPublisher:
         except Exception as e:
             print(f"WordPress连接失败: {e}")
             return False
+    
+    def get_categories(self):
+        """获取WordPress分类列表"""
+        if not self.client and not self.connect():
+            return {}
+            
+        try:
+            # 获取所有分类
+            categories = self.client.call(GetTerms('category'))
+            category_dict = {}
+            
+            for category in categories:
+                category_dict[category.id] = {
+                    'name': category.name,
+                    'slug': category.slug,
+                    'description': getattr(category, 'description', ''),
+                    'count': getattr(category, 'count', 0)
+                }
+            
+            self._categories_cache = category_dict
+            return category_dict
+            
+        except Exception as e:
+            print(f"获取分类失败: {e}")
+            return {}
+    
+    def get_category_name(self, category_id):
+        """根据ID获取分类名称"""
+        if not self._categories_cache:
+            self.get_categories()
+        
+        category_info = self._categories_cache.get(int(category_id))
+        return category_info['name'] if category_info else None
     
     def publish_post(self, title, content, category_id=None):
         """发布文章到WordPress"""
@@ -77,12 +113,29 @@ class WordPressPublisher:
             post.post_status = 'publish'
             
             if category_id:
-                post.terms_names = {'category': [category_id]}
+                # 方法1: 使用分类ID直接设置
+                post.terms = {
+                    'category': [int(category_id)]
+                }
+                
+                # 方法2: 如果方法1不工作，尝试使用分类名称
+                category_name = self.get_category_name(category_id)
+                if category_name:
+                    print(f"设置分类: ID={category_id}, 名称={category_name}")
+                    post.terms_names = {
+                        'category': [category_name]
+                    }
+                else:
+                    print(f"警告: 未找到分类ID {category_id} 对应的名称")
             
             post_id = self.client.call(NewPost(post))
+            print(f"文章发布成功，WordPress文章ID: {post_id}")
             return post_id
+            
         except Exception as e:
             print(f"发布失败: {e}")
+            import traceback
+            traceback.print_exc()
             return False
 
 @app.route('/')
@@ -359,6 +412,58 @@ def save_article():
         return jsonify({
             'success': False,
             'message': f'服务器错误: {str(e)}'
+        })
+
+@app.route('/api/get_wp_categories', methods=['POST'])
+@login_required
+def get_wp_categories():
+    """获取WordPress分类列表"""
+    data = request.get_json()
+    wp_config = data.get('wp_config', {})
+    
+    if not wp_config.get('url') or not wp_config.get('username') or not wp_config.get('password'):
+        return jsonify({
+            'success': False,
+            'message': '请提供完整的WordPress配置信息'
+        })
+    
+    try:
+        wp_publisher = WordPressPublisher(
+            wp_config.get('url'),
+            wp_config.get('username'),
+            wp_config.get('password')
+        )
+        
+        categories = wp_publisher.get_categories()
+        
+        if categories:
+            # 转换为前端需要的格式
+            category_list = []
+            for cat_id, cat_info in categories.items():
+                category_list.append({
+                    'id': cat_id,
+                    'name': cat_info['name'],
+                    'slug': cat_info['slug'],
+                    'count': cat_info['count']
+                })
+            
+            # 按名称排序
+            category_list.sort(key=lambda x: x['name'])
+            
+            return jsonify({
+                'success': True,
+                'categories': category_list
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': '无法获取WordPress分类列表'
+            })
+            
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'获取分类失败: {str(e)}'
         })
 
 @app.route('/api/publish_article', methods=['POST'])

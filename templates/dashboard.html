@@ -285,8 +285,19 @@
                         <input type="password" class="form-control" id="wpPassword" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">分类ID（可选）</label>
-                        <input type="text" class="form-control" id="wpCategoryId" placeholder="留空为默认分类">
+                        <label class="form-label">分类</label>
+                        <div class="input-group">
+                            <select class="form-select" id="wpCategorySelect">
+                                <option value="">选择分类...</option>
+                            </select>
+                            <button class="btn btn-outline-secondary" type="button" onclick="loadWpCategories()">
+                                <i class="fas fa-refresh"></i> 加载分类
+                            </button>
+                        </div>
+                        <div class="form-text">
+                            或手动输入分类ID: 
+                            <input type="number" class="form-control form-control-sm mt-1" id="wpCategoryId" placeholder="分类ID（可选）">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -302,19 +313,87 @@
 {% block scripts %}
 <script>
 let currentArticleId = null;
+let wpCategories = [];
 
 function publishArticle(articleId) {
     currentArticleId = articleId;
+    // 清空分类选择
+    document.getElementById('wpCategorySelect').innerHTML = '<option value="">选择分类...</option>';
+    document.getElementById('wpCategoryId').value = '';
     new bootstrap.Modal(document.getElementById('wpConfigModal')).show();
+}
+
+function loadWpCategories() {
+    const wpConfig = {
+        url: document.getElementById('wpUrl').value,
+        username: document.getElementById('wpUsername').value,
+        password: document.getElementById('wpPassword').value
+    };
+
+    if (!wpConfig.url || !wpConfig.username || !wpConfig.password) {
+        alert('请先填写WordPress配置信息');
+        return;
+    }
+
+    const loadBtn = document.querySelector('button[onclick="loadWpCategories()"]');
+    const originalText = loadBtn.innerHTML;
+    loadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 加载中...';
+    loadBtn.disabled = true;
+
+    fetch('/api/get_wp_categories', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            wp_config: wpConfig
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            wpCategories = data.categories;
+            const select = document.getElementById('wpCategorySelect');
+            select.innerHTML = '<option value="">选择分类...</option>';
+            
+            data.categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = `${category.name} (${category.count})`;
+                select.appendChild(option);
+            });
+            
+            alert(`成功加载 ${data.categories.length} 个分类`);
+        } else {
+            alert('加载分类失败: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('加载分类失败: ' + error);
+    })
+    .finally(() => {
+        loadBtn.innerHTML = originalText;
+        loadBtn.disabled = false;
+    });
 }
 
 function confirmPublish() {
     const wpConfig = {
         url: document.getElementById('wpUrl').value,
         username: document.getElementById('wpUsername').value,
-        password: document.getElementById('wpPassword').value,
-        category_id: document.getElementById('wpCategoryId').value
+        password: document.getElementById('wpPassword').value
     };
+
+    // 获取选择的分类ID
+    const selectedCategoryId = document.getElementById('wpCategorySelect').value;
+    const manualCategoryId = document.getElementById('wpCategoryId').value;
+    
+    // 优先使用选择的分类，其次使用手动输入的ID
+    const categoryId = selectedCategoryId || manualCategoryId || null;
+    
+    if (categoryId) {
+        wpConfig.category_id = parseInt(categoryId);
+    }
 
     fetch('/api/publish_article', {
         method: 'POST',
@@ -329,7 +408,17 @@ function confirmPublish() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('文章发布成功！');
+            let message = '文章发布成功！';
+            if (data.wp_post_id) {
+                message += `\nWordPress文章ID: ${data.wp_post_id}`;
+            }
+            if (categoryId) {
+                const selectedCategory = wpCategories.find(cat => cat.id == categoryId);
+                if (selectedCategory) {
+                    message += `\n分类: ${selectedCategory.name}`;
+                }
+            }
+            alert(message);
             location.reload();
         } else {
             alert('发布失败: ' + data.message);
