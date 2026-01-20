@@ -66,7 +66,7 @@ class Article(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     
     # 标签关联
-    tags = db.relationship('Tag', secondary='article_tags', backref='articles', lazy='dynamic')
+    tags = db.relationship('Tag', secondary='article_tags', backref='articles', lazy='subquery')
     
     def __repr__(self):
         return f'<Article {self.title}>'

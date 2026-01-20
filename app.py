@@ -285,7 +285,12 @@ def save_article():
             
             # 处理标签
             print(f"处理标签: {tags_data}")
-            article.tags.clear()
+            
+            # 使用标准的SQLAlchemy方法处理多对多关系
+            # 先清空现有标签
+            article.tags = []
+            
+            # 添加新标签
             for tag_name in tags_data:
                 tag_name = tag_name.strip()
                 if tag_name:
@@ -293,6 +298,7 @@ def save_article():
                     if not tag:
                         tag = Tag(name=tag_name)
                         db.session.add(tag)
+                        db.session.flush()  # 确保tag有ID
                     article.tags.append(tag)
             
             # 记录审核日志
