@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+
+{% block title %}{% if article %}编辑文章{% else %}新建文章{% endif %} - 文章管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-edit"></i> 
+        {% if article %}编辑文章{% else %}新建文章{% endif %}
+    </h2>
+    <div>
+        <button class="btn btn-outline-secondary" onclick="checkSensitive()">
+            <i class="fas fa-shield-alt"></i> 检查敏感词
+        </button>
+        <button class="btn btn-success" onclick="saveArticle()">
+            <i class="fas fa-save"></i> 保存文章
+        </button>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> 返回
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-3">
+        <label for="articleTitle" class="form-label">文章标题</label>
+        <input type="text" class="form-control" id="articleTitle" 
+               value="{% if article %}{{ article.title }}{% endif %}" 
+               placeholder="请输入文章标题">
+    </div>
+    
+    <div class="col-12 mb-3">
+        <label for="articleTags" class="form-label">文章标签</label>
+        <div class="input-group">
+            <input type="text" class="form-control" id="tagInput" placeholder="输入标签名称，回车添加">
+            <button class="btn btn-outline-secondary" type="button" onclick="addTag()">
+                <i class="fas fa-plus"></i> 添加
+            </button>
+        </div>
+        <div id="tagsContainer" class="mt-2">
+            {% if article and article.tags %}
+                {% for tag in article.tags %}
+                    <span class="badge bg-info me-1 mb-1 tag-item" data-tag="{{ tag.name }}">
+                        {{ tag.name }}
+                        <button type="button" class="btn-close btn-close-white ms-1" onclick="removeTag('{{ tag.name }}')"></button>
+                    </span>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- 编辑器区域 -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" id="editorTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="markdown-tab" data-bs-toggle="tab" 
+                                data-bs-target="#markdown-pane" type="button" role="tab">
+                            <i class="fab fa-markdown"></i> Markdown编辑
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="html-tab" data-bs-toggle="tab" 
+                                data-bs-target="#html-pane" type="button" role="tab">
+                            <i class="fas fa-code"></i> HTML代码
+                        </button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body p-0">
+                <div class="tab-content h-100">
+                    <div class="tab-pane fade show active h-100" id="markdown-pane" role="tabpanel">
+                        <textarea class="form-control border-0 h-100" id="markdownEditor" 
+                                  placeholder="请输入文章内容（支持Markdown语法）..."
+                                  style="resize: none; min-height: 500px;">{% if article %}{{ article.content }}{% endif %}</textarea>
+                    </div>
+                    <div class="tab-pane fade h-100" id="html-pane" role="tabpanel">
+                        <textarea class="form-control border-0 h-100" id="htmlEditor" 
+                                  placeholder="HTML代码将在这里显示..."
+                                  style="resize: none; min-height: 500px; font-family: 'Courier New', monospace;"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 预览区域 -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="fas fa-eye"></i> 实时预览</h6>
+            </div>
+            <div class="card-body" id="previewArea" style="min-height: 500px; overflow-y: auto;">
+                <p class="text-muted">预览内容将在这里显示...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 敏感词检查结果模态框 -->
+<div class="modal fade" id="sensitiveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">敏感词检查结果</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="sensitiveResult">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script>
+const articleId = {% if article %}{{ article.id }}{% else %}null{% endif %};
+let isUpdating = false;
+let articleTags = [];
+
+// 初始化标签
+{% if article and article.tags %}
+articleTags = [{% for tag in article.tags %}'{{ tag.name }}'{% if not loop.last %}, {% endif %}{% endfor %}];
+{% endif %}
+
+// 初始化编辑器
+document.addEventListener('DOMContentLoaded', function() {
+    const markdownEditor = document.getElementById('markdownEditor');
+    const htmlEditor = document.getElementById('htmlEditor');
+    const previewArea = document.getElementById('previewArea');
+
+    // 实时预览更新
+    function updatePreview() {
+        if (isUpdating) return;
+        isUpdating = true;
+
+        const markdownContent = markdownEditor.value;
+        
+        // 转换Markdown为HTML
+        const htmlContent = marked.parse(markdownContent);
+        
+        // 更新HTML编辑器
+        htmlEditor.value = htmlContent;
+        
+        // 更新预览区域
+        previewArea.innerHTML = htmlContent;
+        
+        isUpdating = false;
+    }
+
+    // 监听Markdown编辑器变化
+    markdownEditor.addEventListener('input', updatePreview);
+    
+    // 监听HTML编辑器变化
+    htmlEditor.addEventListener('input', function() {
+        if (isUpdating) return;
+        previewArea.innerHTML = htmlEditor.value;
+    });
+
+    // 标签页切换事件
+    document.getElementById('html-tab').addEventListener('shown.bs.tab', function() {
+        updatePreview();
+    });
+
+    // 标签输入框回车事件
+    document.getElementById('tagInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTag();
+        }
+    });
+
+    // 初始预览
+    updatePreview();
+});
+
+// 标签管理函数
+function addTag() {
+    const tagInput = document.getElementById('tagInput');
+    const tagName = tagInput.value.trim();
+    
+    if (!tagName) return;
+    
+    if (articleTags.includes(tagName)) {
+        alert('标签已存在');
+        return;
+    }
+    
+    articleTags.push(tagName);
+    tagInput.value = '';
+    updateTagsDisplay();
+}
+
+function removeTag(tagName) {
+    const index = articleTags.indexOf(tagName);
+    if (index > -1) {
+        articleTags.splice(index, 1);
+        updateTagsDisplay();
+    }
+}
+
+function updateTagsDisplay() {
+    const container = document.getElementById('tagsContainer');
+    container.innerHTML = '';
+    
+    articleTags.forEach(tag => {
+        const tagElement = document.createElement('span');
+        tagElement.className = 'badge bg-info me-1 mb-1 tag-item';
+        tagElement.setAttribute('data-tag', tag);
+        tagElement.innerHTML = `
+            ${tag}
+            <button type="button" class="btn-close btn-close-white ms-1" onclick="removeTag('${tag}')"></button>
+        `;
+        container.appendChild(tagElement);
+    });
+}
+});
+
+// 检查敏感词
+function checkSensitive() {
+    const title = document.getElementById('articleTitle').value;
+    const content = document.getElementById('markdownEditor').value;
+    
+    if (!title.trim() && !content.trim()) {
+        alert('请先输入标题或内容');
+        return;
+    }
+
+    // 显示加载状态
+    const checkBtn = document.querySelector('button[onclick="checkSensitive()"]');
+    const originalText = checkBtn.innerHTML;
+    checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 检查中...';
+    checkBtn.disabled = true;
+
+    fetch('/api/check_sensitive', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            content: title + ' ' + content,
+            strict_level: 2  // 可以根据需要调整严格级别
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const resultDiv = document.getElementById('sensitiveResult');
+        
+        if (data.has_sensitive) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-exclamation-triangle"></i> 内容审核未通过</h6>
+                    <div class="mb-3">
+                        <strong>风险等级:</strong> 
+                        <span class="badge bg-${data.risk_level === 'high' ? 'danger' : data.risk_level === 'medium' ? 'warning' : 'info'}">
+                            ${data.risk_level === 'high' ? '高风险' : data.risk_level === 'medium' ? '中风险' : '低风险'}
+                        </span>
+                        <strong class="ms-3">风险评分:</strong> ${(data.score * 100).toFixed(1)}%
+                    </div>
+                    
+                    ${data.reasons && data.reasons.length > 0 ? `
+                    <div class="mb-3">
+                        <strong>审核原因:</strong>
+                        <ul class="mb-0">
+                            ${data.reasons.map(reason => `<li>${reason}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                    
+                    ${data.sensitive_words && data.sensitive_words.length > 0 ? `
+                    <div class="mb-3">
+                        <strong>违规关键词:</strong>
+                        <div class="mt-1">
+                            ${data.sensitive_words.map(word => `<span class="badge bg-danger me-1">${word}</span>`).join('')}
+                        </div>
+                    </div>
+                    ` : ''}
+                    
+                    ${data.suggestions && data.suggestions.length > 0 ? `
+                    <div class="mb-3">
+                        <strong>修改建议:</strong>
+                        <ul class="mb-0">
+                            ${data.suggestions.map(suggestion => `<li>${suggestion}</li>`).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                    
+                    ${data.sanitized_content ? `
+                    <div class="mt-3">
+                        <strong>净化后内容预览:</strong>
+                        <div class="bg-light p-2 rounded mt-1" style="max-height: 200px; overflow-y: auto;">
+                            <small>${data.sanitized_content}</small>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <h6><i class="fas fa-check-circle"></i> 内容审核通过</h6>
+                    <div class="mb-2">
+                        <strong>风险等级:</strong> 
+                        <span class="badge bg-success">低风险</span>
+                        <strong class="ms-3">风险评分:</strong> ${(data.score * 100).toFixed(1)}%
+                    </div>
+                    <p class="mb-0">内容符合发布标准，可以安全发布。</p>
+                </div>
+            `;
+        }
+        
+        new bootstrap.Modal(document.getElementById('sensitiveModal')).show();
+    })
+    .catch(error => {
+        console.error('审核检查失败:', error);
+        const resultDiv = document.getElementById('sensitiveResult');
+        resultDiv.innerHTML = `
+            <div class="alert alert-warning">
+                <h6><i class="fas fa-exclamation-circle"></i> 审核服务异常</h6>
+                <p class="mb-0">无法连接到审核服务，请稍后重试。错误信息: ${error}</p>
+            </div>
+        `;
+        new bootstrap.Modal(document.getElementById('sensitiveModal')).show();
+    })
+    .finally(() => {
+        // 恢复按钮状态
+        checkBtn.innerHTML = originalText;
+        checkBtn.disabled = false;
+    });
+}
+
+// 保存文章
+function saveArticle() {
+    const title = document.getElementById('articleTitle').value.trim();
+    const content = document.getElementById('markdownEditor').value.trim();
+    
+    if (!title) {
+        alert('请输入文章标题');
+        return;
+    }
+    
+    if (!content) {
+        alert('请输入文章内容');
+        return;
+    }
+
+    // 显示保存状态
+    const saveBtn = document.querySelector('button[onclick="saveArticle()"]');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+    saveBtn.disabled = true;
+
+    const data = {
+        title: title,
+        content: content,
+        tags: articleTags,
+        strict_level: 2  // 可以根据需要调整
+    };
+    
+    if (articleId) {
+        data.article_id = articleId;
+    }
+
+    fetch('/api/save_article', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            let message = '文章保存成功！';
+            if (data.audit_info) {
+                message += `\n风险评分: ${(data.audit_info.score * 100).toFixed(1)}%`;
+                message += `\n风险等级: ${data.audit_info.risk_level}`;
+            }
+            alert(message);
+            
+            if (!articleId) {
+                // 新文章保存后跳转到编辑页面
+                window.location.href = `/editor/${data.article_id}`;
+            }
+        } else {
+            let errorMessage = '保存失败:\n';
+            if (data.reasons && data.reasons.length > 0) {
+                errorMessage += data.reasons.join('\n');
+            } else {
+                errorMessage += data.message;
+            }
+            
+            if (data.sensitive_words && data.sensitive_words.length > 0) {
+                errorMessage += '\n\n违规关键词: ' + data.sensitive_words.join(', ');
+            }
+            
+            if (data.suggestions && data.suggestions.length > 0) {
+                errorMessage += '\n\n修改建议:\n' + data.suggestions.join('\n');
+            }
+            
+            alert(errorMessage);
+        }
+    })
+    .catch(error => {
+        alert('保存失败: ' + error);
+    })
+    .finally(() => {
+        // 恢复按钮状态
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    });
+}
+
+// 快捷键支持
+document.addEventListener('keydown', function(e) {
+    // Ctrl+S 保存
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveArticle();
+    }
+    
+    // Ctrl+Shift+P 预览
+    if (e.ctrlKey && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        checkSensitive();
+    }
+});
+</script>
+{% endblock %}

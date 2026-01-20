@@ -1,0 +1,405 @@
+{% extends "base.html" %}
+
+{% block title %}文章管理 - 文章管理系统{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-newspaper"></i> 文章管理</h2>
+    <a href="{{ url_for('editor') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i> 新建文章
+    </a>
+</div>
+
+<!-- 统计卡片 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.total }}</h4>
+                        <p class="mb-0">总文章数</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-file-alt fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.published }}</h4>
+                        <p class="mb-0">已发布</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.draft }}</h4>
+                        <p class="mb-0">草稿</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-edit fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-secondary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.archived }}</h4>
+                        <p class="mb-0">已归档</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-archive fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 筛选和搜索 -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">状态筛选</label>
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="all" {% if current_status == 'all' %}selected{% endif %}>全部</option>
+                    <option value="published" {% if current_status == 'published' %}selected{% endif %}>已发布</option>
+                    <option value="draft" {% if current_status == 'draft' %}selected{% endif %}>草稿</option>
+                    <option value="archived" {% if current_status == 'archived' %}selected{% endif %}>已归档</option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">搜索文章</label>
+                <input type="text" name="search" class="form-control" placeholder="输入标题关键词..." 
+                       value="{{ search }}" onchange="this.form.submit()">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">&nbsp;</label>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search"></i> 搜索
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if articles.items %}
+<div class="row">
+    {% for article in articles.items %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">{{ article.title[:30] }}{% if article.title|length > 30 %}...{% endif %}</h6>
+                <div>
+                    {% if article.status == 'published' %}
+                        <span class="badge bg-success">已发布</span>
+                    {% elif article.status == 'draft' %}
+                        <span class="badge bg-secondary">草稿</span>
+                    {% elif article.status == 'archived' %}
+                        <span class="badge bg-warning">已归档</span>
+                    {% endif %}
+                    
+                    {% if article.risk_level %}
+                        <span class="badge badge-sm 
+                            {% if article.risk_level == 'high' %}bg-danger
+                            {% elif article.risk_level == 'medium' %}bg-warning
+                            {% else %}bg-success{% endif %}">
+                            {% if article.risk_level == 'high' %}高风险
+                            {% elif article.risk_level == 'medium' %}中风险
+                            {% else %}低风险{% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <p class="card-text text-muted">
+                    {{ (article.summary or article.content)[:100] | striptags }}{% if (article.summary or article.content)|length > 100 %}...{% endif %}
+                </p>
+                
+                <!-- 标签 -->
+                {% if article.tags %}
+                <div class="mb-2">
+                    {% for tag in article.tags %}
+                        <span class="badge bg-info me-1">{{ tag.name }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <small class="text-muted">
+                    <div class="row">
+                        <div class="col-6">
+                            <i class="fas fa-calendar"></i> {{ article.created_at.strftime('%m-%d %H:%M') }}
+                        </div>
+                        <div class="col-6 text-end">
+                            <i class="fas fa-font"></i> {{ article.word_count }}字
+                        </div>
+                    </div>
+                    {% if article.published_at %}
+                    <div class="mt-1">
+                        <i class="fas fa-upload"></i> 发布: {{ article.published_at.strftime('%m-%d %H:%M') }}
+                    </div>
+                    {% endif %}
+                    {% if article.audit_score is not none %}
+                    <div class="mt-1">
+                        <i class="fas fa-shield-alt"></i> 风险评分: {{ "%.1f"|format(article.audit_score * 100) }}%
+                    </div>
+                    {% endif %}
+                </small>
+            </div>
+            <div class="card-footer">
+                <div class="btn-group w-100" role="group">
+                    <a href="{{ url_for('editor', article_id=article.id) }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit"></i> 编辑
+                    </a>
+                    
+                    {% if article.status != 'archived' %}
+                        {% if article.status == 'published' %}
+                            {% if article.wp_url %}
+                                <a href="{{ article.wp_url }}" target="_blank" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-external-link-alt"></i> 查看
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <button class="btn btn-outline-success btn-sm" onclick="publishArticle({{ article.id }})">
+                                <i class="fas fa-upload"></i> 发布
+                            </button>
+                        {% endif %}
+                        
+                        <button class="btn btn-outline-warning btn-sm" onclick="archiveArticle({{ article.id }})">
+                            <i class="fas fa-archive"></i> 归档
+                        </button>
+                    {% else %}
+                        <button class="btn btn-outline-info btn-sm" onclick="restoreArticle({{ article.id }})">
+                            <i class="fas fa-undo"></i> 恢复
+                        </button>
+                    {% endif %}
+                    
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteArticle({{ article.id }})">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 分页 -->
+{% if articles.pages > 1 %}
+<nav aria-label="文章分页">
+    <ul class="pagination justify-content-center">
+        {% if articles.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('dashboard', page=articles.prev_num, status=current_status, search=search) }}">上一页</a>
+            </li>
+        {% endif %}
+        
+        {% for page_num in articles.iter_pages() %}
+            {% if page_num %}
+                {% if page_num != articles.page %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dashboard', page=page_num, status=current_status, search=search) }}">{{ page_num }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                {% endif %}
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">…</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if articles.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('dashboard', page=articles.next_num, status=current_status, search=search) }}">下一页</a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+    <h4 class="text-muted">
+        {% if current_status != 'all' or search %}
+            没有找到符合条件的文章
+        {% else %}
+            暂无文章
+        {% endif %}
+    </h4>
+    <p class="text-muted">
+        {% if current_status != 'all' or search %}
+            尝试调整筛选条件或搜索关键词
+        {% else %}
+            点击上方按钮创建您的第一篇文章
+        {% endif %}
+    </p>
+</div>
+{% endif %}
+
+<!-- WordPress配置模态框 -->
+<div class="modal fade" id="wpConfigModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">WordPress配置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="wpConfigForm">
+                    <div class="mb-3">
+                        <label class="form-label">WordPress网站URL</label>
+                        <input type="url" class="form-control" id="wpUrl" placeholder="https://your-site.com" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="wpUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">密码</label>
+                        <input type="password" class="form-control" id="wpPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">分类ID（可选）</label>
+                        <input type="text" class="form-control" id="wpCategoryId" placeholder="留空为默认分类">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="confirmPublish()">确认发布</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentArticleId = null;
+
+function publishArticle(articleId) {
+    currentArticleId = articleId;
+    new bootstrap.Modal(document.getElementById('wpConfigModal')).show();
+}
+
+function confirmPublish() {
+    const wpConfig = {
+        url: document.getElementById('wpUrl').value,
+        username: document.getElementById('wpUsername').value,
+        password: document.getElementById('wpPassword').value,
+        category_id: document.getElementById('wpCategoryId').value
+    };
+
+    fetch('/api/publish_article', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            article_id: currentArticleId,
+            wp_config: wpConfig
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('文章发布成功！');
+            location.reload();
+        } else {
+            alert('发布失败: ' + data.message);
+        }
+        bootstrap.Modal.getInstance(document.getElementById('wpConfigModal')).hide();
+    })
+    .catch(error => {
+        alert('发布失败: ' + error);
+        bootstrap.Modal.getInstance(document.getElementById('wpConfigModal')).hide();
+    });
+}
+
+function deleteArticle(articleId) {
+    if (confirm('确定要删除这篇文章吗？此操作不可恢复！')) {
+        fetch(`/api/delete_article/${articleId}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('文章删除成功！');
+                location.reload();
+            } else {
+                alert('删除失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('删除失败: ' + error);
+        });
+    }
+}
+
+function archiveArticle(articleId) {
+    if (confirm('确定要归档这篇文章吗？')) {
+        fetch(`/api/archive_article/${articleId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('文章已归档！');
+                location.reload();
+            } else {
+                alert('归档失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('归档失败: ' + error);
+        });
+    }
+}
+
+function restoreArticle(articleId) {
+    if (confirm('确定要恢复这篇文章吗？')) {
+        fetch(`/api/restore_article/${articleId}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('文章已恢复！');
+                location.reload();
+            } else {
+                alert('恢复失败: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('恢复失败: ' + error);
+        });
+    }
+}
+</script>
+{% endblock %}
