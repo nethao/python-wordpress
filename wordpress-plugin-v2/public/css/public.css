@@ -1,0 +1,500 @@
+/**
+ * 公共前端样式
+ *
+ * @package Article_Management_V2
+ * @subpackage Public/CSS
+ */
+
+/* 通用样式 */
+.ams-v2-public {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    line-height: 1.6;
+    color: #333;
+}
+
+.ams-v2-public * {
+    box-sizing: border-box;
+}
+
+/* 容器样式 */
+.ams-v2-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.ams-v2-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -15px;
+}
+
+.ams-v2-col {
+    padding: 0 15px;
+    flex: 1;
+}
+
+.ams-v2-col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.ams-v2-col-4 {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+}
+
+.ams-v2-col-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+}
+
+/* 卡片样式 */
+.ams-v2-card {
+    background: #fff;
+    border: 1px solid #e1e5e9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.ams-v2-card-header {
+    padding: 20px;
+    border-bottom: 1px solid #e1e5e9;
+    background: #f8f9fa;
+}
+
+.ams-v2-card-body {
+    padding: 20px;
+}
+
+.ams-v2-card-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #e1e5e9;
+    background: #f8f9fa;
+}
+
+.ams-v2-card-title {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* 按钮样式 */
+.ams-v2-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.ams-v2-btn:hover {
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.ams-v2-btn-primary {
+    background: #007cba;
+    border-color: #007cba;
+    color: #fff;
+}
+
+.ams-v2-btn-primary:hover {
+    background: #005a87;
+    border-color: #005a87;
+    color: #fff;
+}
+
+.ams-v2-btn-secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.ams-v2-btn-secondary:hover {
+    background: #545b62;
+    border-color: #545b62;
+    color: #fff;
+}
+
+.ams-v2-btn-success {
+    background: #28a745;
+    border-color: #28a745;
+    color: #fff;
+}
+
+.ams-v2-btn-success:hover {
+    background: #1e7e34;
+    border-color: #1e7e34;
+    color: #fff;
+}
+
+.ams-v2-btn-danger {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+.ams-v2-btn-danger:hover {
+    background: #bd2130;
+    border-color: #bd2130;
+    color: #fff;
+}
+
+.ams-v2-btn-outline {
+    background: transparent;
+    color: #007cba;
+    border-color: #007cba;
+}
+
+.ams-v2-btn-outline:hover {
+    background: #007cba;
+    color: #fff;
+}
+
+.ams-v2-btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.ams-v2-btn-lg {
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+/* 表单样式 */
+.ams-v2-form-group {
+    margin-bottom: 20px;
+}
+
+.ams-v2-form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.ams-v2-form-control {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #495057;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.ams-v2-form-control:focus {
+    border-color: #007cba;
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+}
+
+.ams-v2-form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.ams-v2-form-control.is-invalid:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.ams-v2-form-text {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+}
+
+.ams-v2-form-error {
+    font-size: 12px;
+    color: #dc3545;
+    margin-top: 5px;
+}
+
+.ams-v2-form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ams-v2-form-check-input {
+    margin-right: 8px;
+}
+
+/* 表格样式 */
+.ams-v2-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ams-v2-table th,
+.ams-v2-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.ams-v2-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.ams-v2-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.ams-v2-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 状态标签 */
+.ams-v2-badge {
+    display: inline-block;
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.ams-v2-badge-draft {
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+.ams-v2-badge-pending {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.ams-v2-badge-approved {
+    background: #d4edda;
+    color: #155724;
+}
+
+.ams-v2-badge-published {
+    background: #cce5ff;
+    color: #004085;
+}
+
+.ams-v2-badge-rejected {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* 分页样式 */
+.ams-v2-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 30px 0;
+}
+
+.ams-v2-pagination a,
+.ams-v2-pagination span {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 2px;
+    text-decoration: none;
+    border: 1px solid #e1e5e9;
+    border-radius: 4px;
+    color: #007cba;
+    transition: all 0.2s ease;
+}
+
+.ams-v2-pagination a:hover {
+    background: #007cba;
+    color: #fff;
+    border-color: #007cba;
+}
+
+.ams-v2-pagination .current {
+    background: #007cba;
+    color: #fff;
+    border-color: #007cba;
+}
+
+/* 通知样式 */
+.ams-v2-alert {
+    padding: 15px 20px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+}
+
+.ams-v2-alert-success {
+    background: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+}
+
+.ams-v2-alert-error {
+    background: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.ams-v2-alert-warning {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+    color: #856404;
+}
+
+.ams-v2-alert-info {
+    background: #cce5ff;
+    border-color: #b3d7ff;
+    color: #004085;
+}
+
+/* 加载动画 */
+.ams-v2-loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007cba;
+    border-radius: 50%;
+    animation: ams-v2-spin 1s linear infinite;
+}
+
+@keyframes ams-v2-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.ams-v2-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* 模态框样式 */
+.ams-v2-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.ams-v2-modal-content {
+    background: #fff;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+}
+
+.ams-v2-modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #e1e5e9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.ams-v2-modal-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.ams-v2-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+}
+
+.ams-v2-modal-body {
+    padding: 20px;
+}
+
+.ams-v2-modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #e1e5e9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .ams-v2-container {
+        padding: 0 15px;
+    }
+    
+    .ams-v2-row {
+        margin: 0 -10px;
+    }
+    
+    .ams-v2-col {
+        padding: 0 10px;
+    }
+    
+    .ams-v2-col-6,
+    .ams-v2-col-4,
+    .ams-v2-col-3 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .ams-v2-card-body {
+        padding: 15px;
+    }
+    
+    .ams-v2-table {
+        font-size: 14px;
+    }
+    
+    .ams-v2-table th,
+    .ams-v2-table td {
+        padding: 8px 12px;
+    }
+    
+    .ams-v2-btn {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+    
+    .ams-v2-modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .ams-v2-modal-body {
+        padding: 15px;
+    }
+}

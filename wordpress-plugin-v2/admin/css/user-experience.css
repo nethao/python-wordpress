@@ -1,0 +1,407 @@
+/**
+ * 用户体验优化样式
+ * 
+ * 提供模态框、通知、工具提示等UI组件的样式
+ */
+
+/* 通知系统 */
+#ams-notifications {
+    position: fixed;
+    top: 32px;
+    right: 20px;
+    z-index: 10000;
+    max-width: 400px;
+}
+
+.ams-notification {
+    background: #fff;
+    border-left: 4px solid #0073aa;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+    padding: 12px 15px;
+    position: relative;
+    border-radius: 3px;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.ams-notification-success {
+    border-left-color: #46b450;
+}
+
+.ams-notification-error {
+    border-left-color: #dc3232;
+}
+
+.ams-notification-warning {
+    border-left-color: #ffb900;
+}
+
+.ams-notification-message {
+    display: block;
+    margin-right: 25px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.ams-notification-close {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 18px;
+    color: #666;
+    line-height: 1;
+}
+
+.ams-notification-close:hover {
+    color: #000;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* 模态框 */
+.ams-modal {
+    display: none;
+    position: fixed;
+    z-index: 10001;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s ease-out;
+}
+
+.ams-modal-content {
+    background-color: #fff;
+    margin: 5% auto;
+    border-radius: 5px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: slideInDown 0.3s ease-out;
+}
+
+.ams-modal-header {
+    padding: 20px 25px 15px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+}
+
+.ams-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.ams-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+}
+
+.ams-modal-close:hover {
+    color: #000;
+}
+
+.ams-modal-body {
+    padding: 20px 25px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.ams-modal-footer {
+    padding: 15px 25px 20px;
+    text-align: right;
+    border-top: 1px solid #ddd;
+}
+
+.ams-modal-footer .button {
+    margin-left: 10px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 进度指示器 */
+.ams-progress-content {
+    text-align: center;
+    padding: 40px 25px;
+    max-width: 400px;
+}
+
+.ams-progress-spinner {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 20px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 加载覆盖层 */
+.ams-loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255,0.8);
+    z-index: 9999;
+}
+
+.ams-loading-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #0073aa;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+/* 工具提示 */
+.ams-tooltip {
+    position: absolute;
+    background: #333;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10002;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.ams-tooltip:after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border: 5px solid transparent;
+    border-top-color: #333;
+}
+
+/* 表单错误样式 */
+.ams-error {
+    border-color: #dc3232 !important;
+    box-shadow: 0 0 2px rgba(220, 50, 50, 0.8) !important;
+}
+
+.ams-error-message {
+    color: #dc3232;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+
+/* 面包屑导航 */
+.ams-breadcrumb {
+    margin: 10px 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.ams-breadcrumb span {
+    color: #0073aa;
+}
+
+.ams-breadcrumb span:last-child {
+    color: #333;
+    font-weight: 500;
+}
+
+/* 帮助按钮 */
+.ams-help-button {
+    float: right;
+    margin-left: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    font-weight: bold;
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.ams-help-button:hover {
+    background: #005a87;
+    color: #fff;
+}
+
+.ams-help-content {
+    max-width: 700px;
+}
+
+.ams-help-content h4 {
+    color: #0073aa;
+    margin-top: 0;
+}
+
+.ams-help-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.ams-help-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* 批量操作 */
+.ams-bulk-actions {
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.ams-bulk-checkbox {
+    margin-right: 8px;
+}
+
+.ams-select-all {
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+/* 确认操作样式 */
+.ams-confirm-action {
+    position: relative;
+}
+
+.ams-confirm-action.dangerous {
+    color: #dc3232;
+}
+
+.ams-confirm-action.dangerous:hover {
+    color: #a00;
+}
+
+/* 状态指示器 */
+.ams-status-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.ams-status-active {
+    background-color: #46b450;
+}
+
+.ams-status-inactive {
+    background-color: #dc3232;
+}
+
+.ams-status-pending {
+    background-color: #ffb900;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .ams-modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .ams-modal-header,
+    .ams-modal-body,
+    .ams-modal-footer {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    #ams-notifications {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+    
+    .ams-help-button {
+        float: none;
+        display: block;
+        margin: 10px 0;
+        width: auto;
+        height: auto;
+        border-radius: 3px;
+        padding: 5px 10px;
+    }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+    .ams-notification {
+        border: 2px solid #000;
+    }
+    
+    .ams-modal-content {
+        border: 2px solid #000;
+    }
+    
+    .ams-tooltip {
+        border: 1px solid #fff;
+    }
+}
+
+/* 减少动画模式支持 */
+@media (prefers-reduced-motion: reduce) {
+    .ams-notification,
+    .ams-modal,
+    .ams-modal-content,
+    .ams-progress-spinner,
+    .ams-loading-spinner {
+        animation: none;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    .ams-modal,
+    .ams-notification,
+    .ams-loading-overlay,
+    .ams-tooltip,
+    .ams-help-button {
+        display: none !important;
+    }
+}

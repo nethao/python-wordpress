@@ -1,0 +1,455 @@
+/**
+ * 管理后台样式
+ *
+ * @package Article_Management_V2
+ * @subpackage Admin/CSS
+ */
+
+/* 模态框样式 */
+.ams-modal {
+    position: fixed;
+    z-index: 100000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+}
+
+.ams-modal-content {
+    background-color: #fefefe;
+    margin: 5% auto;
+    border: 1px solid #888;
+    width: 600px;
+    max-width: 90%;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.ams-modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    position: relative;
+    background-color: #f9f9f9;
+    border-radius: 4px 4px 0 0;
+}
+
+.ams-modal-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.ams-modal-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #666;
+    line-height: 1;
+}
+
+.ams-modal-close:hover,
+.ams-modal-close:focus {
+    color: #999;
+    text-decoration: none;
+}
+
+.ams-modal-body {
+    padding: 20px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.ams-modal-footer {
+    padding: 20px;
+    border-top: 1px solid #ddd;
+    text-align: right;
+    background-color: #f9f9f9;
+    border-radius: 0 0 4px 4px;
+}
+
+.ams-modal-footer .button {
+    margin-left: 10px;
+}
+
+/* 用户状态样式 */
+.status-active {
+    color: #46b450;
+    font-weight: bold;
+}
+
+.status-inactive {
+    color: #dc3232;
+    font-weight: bold;
+}
+
+/* 表格样式增强 */
+.wp-list-table .column-username {
+    width: 15%;
+}
+
+.wp-list-table .column-name {
+    width: 15%;
+}
+
+.wp-list-table .column-email {
+    width: 20%;
+}
+
+.wp-list-table .column-role {
+    width: 15%;
+}
+
+.wp-list-table .column-status {
+    width: 10%;
+}
+
+.wp-list-table .column-date {
+    width: 12.5%;
+}
+
+.wp-list-table .column-last-login {
+    width: 12.5%;
+}
+
+/* 加载状态 */
+.ams-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.ams-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #0073aa;
+    border-radius: 50%;
+    animation: ams-spin 1s linear infinite;
+}
+
+@keyframes ams-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* 通知样式 */
+.ams-notice {
+    padding: 12px;
+    margin: 5px 0 15px;
+    border-left: 4px solid #ddd;
+    background: #fff;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.ams-notice.notice-success {
+    border-left-color: #46b450;
+}
+
+.ams-notice.notice-error {
+    border-left-color: #dc3232;
+}
+
+.ams-notice.notice-warning {
+    border-left-color: #ffb900;
+}
+
+.ams-notice.notice-info {
+    border-left-color: #0073aa;
+}
+
+/* 表单样式增强 */
+.form-table th {
+    width: 200px;
+    padding: 20px 10px 20px 0;
+}
+
+.form-table td {
+    padding: 15px 10px;
+}
+
+.form-table input[type="text"],
+.form-table input[type="email"],
+.form-table input[type="password"],
+.form-table select {
+    width: 100%;
+    max-width: 400px;
+}
+
+.form-table .description {
+    color: #666;
+    font-style: italic;
+    margin-top: 5px;
+}
+
+/* 按钮样式 */
+.button.loading {
+    position: relative;
+    color: transparent;
+}
+
+.button.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    margin: -8px 0 0 -8px;
+    border: 2px solid #fff;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: ams-spin 1s linear infinite;
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 768px) {
+    .ams-modal-content {
+        width: 95%;
+        margin: 10% auto;
+    }
+    
+    .ams-modal-header,
+    .ams-modal-body,
+    .ams-modal-footer {
+        padding: 15px;
+    }
+    
+    .form-table th,
+    .form-table td {
+        display: block;
+        width: 100%;
+        padding: 10px 0;
+    }
+    
+    .form-table th {
+        border-bottom: none;
+    }
+}
+
+/* 仪表板样式 */
+.ams-dashboard-widgets {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.ams-dashboard-widget {
+    background: #fff;
+    border: 1px solid #ccd0d4;
+    border-radius: 4px;
+    padding: 20px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+.ams-dashboard-widget h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.ams-stat-number {
+    font-size: 32px;
+    font-weight: bold;
+    color: #0073aa;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.ams-stat-label {
+    color: #666;
+    font-size: 14px;
+}
+
+/* 工具提示 */
+.ams-tooltip {
+    position: relative;
+    cursor: help;
+}
+
+.ams-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 1000;
+}
+
+.ams-tooltip:hover::after {
+    opacity: 1;
+}
+
+/* 标签样式 */
+.ams-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #f0f0f1;
+    border-radius: 3px;
+    font-size: 12px;
+    color: #50575e;
+    margin: 2px;
+}
+
+.ams-tag.tag-admin {
+    background: #d63638;
+    color: #fff;
+}
+
+.ams-tag.tag-user {
+    background: #0073aa;
+    color: #fff;
+}
+
+/* 搜索和过滤 */
+.ams-filters {
+    margin: 20px 0;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.ams-filters .form-field {
+    display: inline-block;
+    margin-right: 15px;
+    margin-bottom: 10px;
+}
+
+.ams-filters label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.ams-filters input,
+.ams-filters select {
+    width: 200px;
+}
+
+/* 批量操作 */
+.ams-bulk-actions {
+    margin: 10px 0;
+}
+
+.ams-bulk-actions select {
+    margin-right: 10px;
+}
+
+/* 错误和成功消息 */
+.ams-message {
+    padding: 10px 15px;
+    margin: 10px 0;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.ams-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.ams-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.ams-message.warning {
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.ams-message.info {
+    background: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* 文章管理特定样式 */
+.status-draft { color: #666; }
+.status-pending { color: #d54e21; font-weight: bold; }
+.status-approved { color: #46b450; font-weight: bold; }
+.status-published { color: #0073aa; font-weight: bold; }
+.status-rejected { color: #dc3232; font-weight: bold; }
+.status-archived { color: #999; }
+
+/* 文章表格列宽 */
+.wp-list-table.articles .column-title { width: 30%; }
+.wp-list-table.articles .column-author { width: 15%; }
+.wp-list-table.articles .column-status { width: 10%; }
+.wp-list-table.articles .column-date { width: 12%; }
+.wp-list-table.articles .column-updated { width: 12%; }
+.wp-list-table.articles .column-moderation { width: 15%; }
+
+/* 审核按钮样式 */
+.moderate-article {
+    margin-right: 5px;
+}
+
+/* 文章内容预览 */
+#view-article-content {
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: #f9f9f9;
+}
+
+#view-article-content h3 {
+    margin-top: 0;
+    color: #0073aa;
+}
+
+#view-article-content .article-meta {
+    background: #fff;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-left: 4px solid #0073aa;
+}
+
+#view-article-content .article-body {
+    background: #fff;
+    padding: 15px;
+    line-height: 1.6;
+}
+
+/* 审核信息样式 */
+#moderate-article-info {
+    background: #f9f9f9;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-left: 4px solid #0073aa;
+}
+
+#moderate-article-info h4 {
+    margin-top: 0;
+    color: #0073aa;
+}
+
+#moderate-article-info .article-excerpt {
+    color: #666;
+    font-style: italic;
+    margin: 10px 0;
+}
